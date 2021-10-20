@@ -6,6 +6,11 @@ import {
   signInWithPopup,
   signOut
 } from "https://www.gstatic.com/firebasejs/9.1.3/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCLxUJWRE1nIgfwvoihzrpUarwIZN7RhEM",
@@ -66,5 +71,30 @@ auth.onAuthStateChanged((user) => {
     whenSignedIn.hidden = true;
     whenSignedOut.hidden = false;
     userDetails.innerHTML = "";
+  }
+});
+
+const db = getFirestore();
+
+const createThing = document.getElementById("createThing");
+const thingsList = document.getElementById("thingsList");
+
+let unsubscribe;
+
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    createThing.onclick = async () => {
+      // const { serverTimestamp } = firebase.firestore.FieldValue;
+      try {
+        const docRef = await addDoc(collection(db, "things"), {
+          uid: user.uid,
+          name: faker.commerce.productName(),
+          createdAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        console.log("Document written with ID: ", docRef.id);
+      } catch (e) {
+        console.error("Error adding document: ", e);
+      }
+    };
   }
 });
